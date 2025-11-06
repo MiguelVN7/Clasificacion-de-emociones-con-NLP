@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, jsonify
 import joblib
 import numpy as np
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
@@ -160,7 +161,12 @@ if __name__ == '__main__':
     print("="*80)
     print(f"📊 Modelo: {model_data['model_name']}")
     print(f"📈 F1-Score: {metrics['f1_macro']:.2%}")
-    print(f"🌐 Accede a: http://localhost:5000")
+
+    # Configuración para desarrollo y producción
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV', 'development') == 'development'
+
+    print(f"🌐 Accede a: http://localhost:{port}")
     print("="*80 + "\n")
 
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)

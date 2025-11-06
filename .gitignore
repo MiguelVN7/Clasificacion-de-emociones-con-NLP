@@ -32,8 +32,9 @@ wheels/
 .installed.cfg
 *.egg
 
-# Modelos entrenados
+# Modelos entrenados (excepto el modelo de producción)
 *.pkl
+!best_emotion_model.pkl
 *.h5
 *.joblib
 
