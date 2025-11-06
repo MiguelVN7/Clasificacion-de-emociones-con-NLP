@@ -1,7 +1,10 @@
-# Archivos de Claude
+# Archivos de Claude y documentación local
 CLAUDE.md
 .CLAUDE.md.swp
 OPTIMIZACION_IMPLEMENTADA.md
+INSTRUCCIONES_WEB.md
+README_WEBAPP.md
+VERIFICACION_MODELO.md
 
 # Carpeta de Claude (si existe)
 .claude/
