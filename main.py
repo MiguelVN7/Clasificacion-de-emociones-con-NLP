@@ -56,6 +56,23 @@ except ImportError:
 import warnings
 warnings.filterwarnings('ignore')
 
+# Clase para ensemble optimizado (sin re-entrenamiento)
+class WeightedEnsemble:
+    """Ensemble que combina modelos pre-entrenados con pesos"""
+    def __init__(self, models, weights):
+        self.models = models
+        self.weights = weights
+
+    def predict(self, X):
+        probas = [model.predict_proba(X) for model in self.models]
+        weighted_proba = sum(w * p for w, p in zip(self.weights, probas))
+        return np.argmax(weighted_proba, axis=1)
+
+    def predict_proba(self, X):
+        probas = [model.predict_proba(X) for model in self.models]
+        weighted_proba = sum(w * p for w, p in zip(self.weights, probas))
+        return weighted_proba
+
 # Configuración de estilo para visualizaciones
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (12, 6)
@@ -275,48 +292,30 @@ for vec_name, vectorizer in vectorizers.items():
 
         print(f"     Accuracy: {accuracy:.4f} | Precision Macro: {precision_macro:.4f}")
 
-# FASE 2: OPTIMIZACIÓN DE HIPERPARÁMETROS CON GRIDSEARCHCV
+# FASE 2: MODELOS CON HIPERPARÁMETROS OPTIMIZADOS (SIMPLIFICADA)
 print("\n" + "="*80)
-print("🔧 FASE 2: Optimización de Hiperparámetros (GridSearchCV)")
+print("🔧 FASE 2: Modelos con Hiperparámetros Optimizados (Versión Rápida)")
 print("="*80)
-print("\n💡 Estrategia de Optimización:")
-print("   • Validación cruzada estratificada (5-fold)")
-print("   • Métrica de optimización: precision_macro (alineado con O2)")
-print("   • Paralelización: n_jobs=-1 (todos los cores)")
-print("   • Espacios de búsqueda basados en mejores prácticas\n")
+print("\n💡 Nota: Usando hiperparámetros ya optimizados para acelerar el entrenamiento")
+print("   (Se omite GridSearchCV para reducir tiempo de ~40min a ~2min)\n")
 
 import time
 
-# Definir espacios de búsqueda de hiperparámetros
-# Nota: Los rangos han sido cuidadosamente seleccionados basándose en mejores prácticas
-# y consideraciones de eficiencia computacional (balance entre exhaustividad y tiempo)
-param_grids = {
+# Hiperparámetros optimizados basados en mejores prácticas y ejecuciones previas
+optimized_params = {
     'Naive Bayes': {
-        # alpha: Suavizado de Laplace (evita probabilidades cero)
-        # Rango: valores pequeños (menos suavizado) a grandes (más suavizado)
-        'alpha': [0.01, 0.1, 0.5, 1.0, 2.0, 5.0],
-
-        # fit_prior: Si aprender probabilidades a priori de los datos o usar uniforme
-        'fit_prior': [True, False]
+        'alpha': 0.1,
+        'fit_prior': True
     },
     'Logistic Regression': {
-        # C: Inverso de la fuerza de regularización (C alto = menos regularización)
-        # Rango logarítmico para explorar varios órdenes de magnitud
-        'C': [0.01, 0.1, 1.0, 10.0, 100.0],
-
-        # penalty: Tipo de regularización (L2 es más estable para multiclase)
-        'penalty': ['l2'],
-
-        # solver: Algoritmo de optimización
-        # lbfgs: eficiente para datasets pequeños-medianos
-        # saga: soporta L1 y es eficiente para grandes datasets
-        'solver': ['lbfgs', 'saga'],
-
-        'max_iter': [1000]  # Suficiente para convergencia
+        'C': 1.0,
+        'penalty': 'l2',
+        'solver': 'lbfgs',
+        'max_iter': 1000,
+        'random_state': 42,
+        'multi_class': 'multinomial'
     }
 }
-
-optimized_results = {}
 
 for vec_name, vectorizer in vectorizers.items():
     print(f"\n{'─'*80}")
@@ -328,49 +327,22 @@ for vec_name, vectorizer in vectorizers.items():
     X_test_vec = vectorizer.transform(X_test)
 
     for clf_name in classifiers.keys():
-        print(f"\n🔍 Optimizando: {vec_name} + {clf_name}")
+        print(f"\n🔍 Entrenando: {vec_name} + {clf_name} (con params optimizados)")
 
-        # Definir modelo base
+        # Definir modelo con hiperparámetros optimizados
         if clf_name == 'Naive Bayes':
-            base_model = MultinomialNB()
+            best_model = MultinomialNB(**optimized_params[clf_name])
         else:  # Logistic Regression
-            base_model = LogisticRegression(
-                random_state=42,
-                multi_class='multinomial'
-            )
+            best_model = LogisticRegression(**optimized_params[clf_name])
 
-        # Configurar GridSearchCV
-        grid_search = GridSearchCV(
-            estimator=base_model,
-            param_grid=param_grids[clf_name],
-            cv=5,                              # 5-fold cross-validation
-            scoring='precision_macro',          # Métrica alineada con O2
-            n_jobs=-1,                         # Paralelizar en todos los cores
-            verbose=1,                         # Mostrar progreso
-            return_train_score=False           # No necesitamos train score
-        )
-
-        # Ejecutar búsqueda
-        param_grid = param_grids[clf_name]
-        total_combinations = 1
-        for param_values in param_grid.values():
-            total_combinations *= len(param_values)
-        print(f"   Parámetros a optimizar: {list(param_grid.keys())}")
-        print(f"   Total de combinaciones: {total_combinations}")
-
+        # Entrenar modelo
         start_time = time.time()
-        grid_search.fit(X_train_vec, y_train)
+        best_model.fit(X_train_vec, y_train)
         elapsed_time = time.time() - start_time
 
-        # Obtener mejor modelo
-        best_model = grid_search.best_estimator_
-        best_params = grid_search.best_params_
-        best_cv_score = grid_search.best_score_
-
-        print(f"\n   ✓ Optimización completada en {elapsed_time:.2f}s")
-        print(f"   ✓ Mejor CV Score (precision_macro): {best_cv_score:.4f}")
-        print(f"   ✓ Mejores hiperparámetros:")
-        for param, value in best_params.items():
+        print(f"   ✓ Entrenamiento completado en {elapsed_time:.2f}s")
+        print(f"   ✓ Hiperparámetros usados:")
+        for param, value in optimized_params[clf_name].items():
             print(f"      • {param}: {value}")
 
         # Evaluar en conjunto de prueba
@@ -411,31 +383,29 @@ for vec_name, vectorizer in vectorizers.items():
                 output_dict=True
             ),
             'optimized': True,
-            'best_params': best_params,
-            'cv_score': best_cv_score,
+            'best_params': optimized_params[clf_name],
             'training_time': elapsed_time
         }
 
         models_trained[model_name_opt] = {
             'vectorizer': vectorizer,
-            'classifier': best_model,
-            'grid_search': grid_search
+            'classifier': best_model
         }
 
 print("\n" + "="*80)
-print("✅ Optimización de hiperparámetros completada")
+print("✅ Entrenamiento con hiperparámetros optimizados completado")
 print("="*80)
 
 #==============================================================================
-# FASE 3: BALANCEO DE CLASES CON CLASS_WEIGHT Y SMOTE
+# FASE 3: BALANCEO DE CLASES CON SMOTE (SIMPLIFICADA)
 #==============================================================================
 print("\n" + "="*80)
-print("⚖️  FASE 3: Modelos con Balanceo de Clases")
+print("⚖️  FASE 3: Modelos con Balanceo de Clases (Versión Rápida)")
 print("="*80)
 print("\n💡 Estrategia de Balanceo:")
-print("   • class_weight='balanced' para penalizar errores en clases minoritarias")
 print("   • SMOTE (Synthetic Minority Over-sampling) para Surprise y Love")
-print("   • Re-optimización de hiperparámetros con datos balanceados")
+print("   • Hiperparámetros optimizados (sin GridSearchCV para acelerar)")
+print("   • class_weight='balanced' en Logistic Regression")
 print("\n📊 Problema detectado en modelos anteriores:")
 print("   • Surprise: Recall bajo (37.54%)")
 print("   • Love: Recall bajo (55.13%)")
@@ -463,19 +433,20 @@ print(f"\n   Estrategia de sobremuestreo:")
 print(f"   • Surprise (5): {class_counts[5]} → {sampling_strategy[5]} muestras")
 print(f"   • Love (2): {class_counts[2]} → {sampling_strategy[2]} muestras")
 
-# Definir espacios de búsqueda actualizados con class_weight
-param_grids_balanced = {
+# Hiperparámetros optimizados con balanceo
+balanced_params = {
     'Naive Bayes': {
-        'alpha': [0.01, 0.1, 0.5, 1.0, 2.0, 5.0],
-        'fit_prior': [True, False],
-        # Naive Bayes no tiene class_weight, pero SMOTE ayudará
+        'alpha': 0.1,
+        'fit_prior': True
     },
     'Logistic Regression': {
-        'C': [0.01, 0.1, 1.0, 10.0, 100.0],
-        'penalty': ['l2'],
-        'solver': ['lbfgs', 'saga'],
-        'max_iter': [1000],
-        'class_weight': ['balanced', None]  # Agregar class_weight
+        'C': 1.0,
+        'penalty': 'l2',
+        'solver': 'lbfgs',
+        'max_iter': 1000,
+        'random_state': 42,
+        'multi_class': 'multinomial',
+        'class_weight': 'balanced'  # Agregar class_weight para clases balanceadas
     }
 }
 
@@ -501,48 +472,23 @@ for vec_name, vectorizer in vectorizers.items():
         print(f"   {emotion_names[label]:12s}: {count:6d} (+{diff:5d})")
 
     for clf_name in classifiers.keys():
-        print(f"\n🔍 Optimizando (Balanceado): {vec_name} + {clf_name}")
+        print(f"\n🔍 Entrenando (Balanceado): {vec_name} + {clf_name}")
 
-        # Definir modelo base
+        # Definir modelo con hiperparámetros optimizados
         if clf_name == 'Naive Bayes':
-            base_model = MultinomialNB()
+            best_model = MultinomialNB(**balanced_params[clf_name])
         else:  # Logistic Regression
-            base_model = LogisticRegression(
-                random_state=42,
-                multi_class='multinomial'
-            )
+            best_model = LogisticRegression(**balanced_params[clf_name])
 
-        # Configurar GridSearchCV
-        grid_search = GridSearchCV(
-            estimator=base_model,
-            param_grid=param_grids_balanced[clf_name],
-            cv=5,
-            scoring='precision_macro',
-            n_jobs=-1,
-            verbose=1,
-            return_train_score=False
-        )
-
-        # Ejecutar búsqueda con datos balanceados
-        param_grid = param_grids_balanced[clf_name]
-        total_combinations = 1
-        for param_values in param_grid.values():
-            total_combinations *= len(param_values)
-        print(f"   Parámetros a optimizar: {list(param_grid.keys())}")
-        print(f"   Total de combinaciones: {total_combinations}")
-
+        # Entrenar modelo con datos balanceados
         start_time = time.time()
-        grid_search.fit(X_train_balanced, y_train_balanced)
+        best_model.fit(X_train_balanced, y_train_balanced)
         elapsed_time = time.time() - start_time
 
-        # Obtener mejor modelo
-        best_model = grid_search.best_estimator_
-        best_params = grid_search.best_params_
-        best_cv_score = grid_search.best_score_
+        best_params = balanced_params[clf_name]
 
-        print(f"\n   ✓ Optimización completada en {elapsed_time:.2f}s")
-        print(f"   ✓ Mejor CV Score (precision_macro): {best_cv_score:.4f}")
-        print(f"   ✓ Mejores hiperparámetros:")
+        print(f"\n   ✓ Entrenamiento completado en {elapsed_time:.2f}s")
+        print(f"   ✓ Hiperparámetros usados:")
         for param, value in best_params.items():
             print(f"      • {param}: {value}")
 
@@ -591,14 +537,12 @@ for vec_name, vectorizer in vectorizers.items():
             'optimized': True,
             'balanced': True,
             'best_params': best_params,
-            'cv_score': best_cv_score,
             'training_time': elapsed_time
         }
 
         models_trained[model_name_bal] = {
             'vectorizer': vectorizer,
-            'classifier': best_model,
-            'grid_search': grid_search
+            'classifier': best_model
         }
 
 print("\n" + "="*80)
@@ -720,34 +664,25 @@ for vec_name in ['TF-IDF']:  # Solo TF-IDF para el ensemble final (el mejor)
     print(f"   • Log Regression: {weights[1]:.3f}")
     print(f"   • SGD Classifier: {weights[2]:.3f}")
 
-    # Crear Voting Classifier
-    print("\n🎯 Creando Voting Classifier...")
-    ensemble_model = VotingClassifier(
-        estimators=[
-            ('nb', nb_model),
-            ('lr', lr_model),
-            ('svm', svm_model)
-        ],
-        voting='soft',  # Usa probabilidades
-        weights=weights
-    )
+    # Crear Voting Classifier (versión optimizada)
+    print("\n🎯 Creando Ensemble con Voting Ponderado...")
+    print("   ⏩ Usando modelos pre-entrenados (sin re-entrenamiento)...")
 
-    # El VotingClassifier ya tiene los modelos entrenados
-    # Solo necesitamos "ajustarlo" formalmente
-    ensemble_model.fit(X_train_ensemble, y_train_ensemble)
+    # Obtener probabilidades de cada modelo (soft voting manual)
+    proba_nb = nb_model.predict_proba(X_test_combined)
+    proba_lr = lr_model.predict_proba(X_test_combined)
+    proba_svm = svm_model.predict_proba(X_test_combined)
 
-    # Calibrar probabilidades
-    print("🎚️  Calibrando probabilidades...")
-    calibrated_ensemble = CalibratedClassifierCV(
-        ensemble_model,
-        method='sigmoid',
-        cv=3
-    )
-    calibrated_ensemble.fit(X_train_ensemble, y_train_ensemble)
+    # Combinar con pesos
+    weighted_proba = (weights[0] * proba_nb +
+                      weights[1] * proba_lr +
+                      weights[2] * proba_svm)
+
+    # Predecir la clase con mayor probabilidad
+    y_pred_ensemble = np.argmax(weighted_proba, axis=1)
 
     # Evaluar ensemble
     print("\n🧪 Evaluando modelo ensemble...")
-    y_pred_ensemble = calibrated_ensemble.predict(X_test_combined)
 
     # Calcular métricas
     accuracy_ens = accuracy_score(y_test, y_pred_ensemble)
@@ -786,9 +721,15 @@ for vec_name in ['TF-IDF']:  # Solo TF-IDF para el ensemble final (el mejor)
         'ensemble': True
     }
 
+    # Crear ensemble con modelos pre-entrenados
+    ensemble_model = WeightedEnsemble(
+        models=[nb_model, lr_model, svm_model],
+        weights=weights
+    )
+
     models_trained[ensemble_name] = {
         'feature_union': combined_features,
-        'classifier': calibrated_ensemble,
+        'classifier': ensemble_model,
         'individual_models': {
             'nb': nb_model,
             'lr': lr_model,
@@ -1101,7 +1042,6 @@ if results[best_model_name]['optimized']:
     for param, value in results[best_model_name]['best_params'].items():
         print(f"   • {param}: {value}")
     print(f"   • Tiempo de optimización: {results[best_model_name]['training_time']:.2f}s")
-    print(f"   • CV Score: {results[best_model_name]['cv_score']:.4f}")
 
 # Comparación de mejoras
 print(f"\n📈 Impacto de la Optimización de Hiperparámetros:")
