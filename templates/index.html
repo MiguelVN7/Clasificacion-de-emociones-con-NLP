@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emotion Classifier AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
@@ -12,88 +15,136 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #0d0d0f;
+            --bg-secondary: #151518;
+            --bg-surface: #1a1a1f;
+            --bg-surface-2: #222228;
+            --bg-surface-3: #2a2a32;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-medium: rgba(255, 255, 255, 0.1);
+            --border-strong: rgba(255, 255, 255, 0.15);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #71717a;
+            --accent: #10a37f;
+            --accent-hover: #0d8c6d;
+            --accent-glow: rgba(16, 163, 127, 0.15);
+            --accent-glow-strong: rgba(16, 163, 127, 0.3);
+            --danger: #ef4444;
+            --danger-hover: rgba(239, 68, 68, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px var(--accent-glow);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: #343541;
-            color: #ececf1;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             height: 100vh;
             height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Header */
         .header {
-            background: #202123;
-            padding: 12px 20px;
-            border-bottom: 1px solid #4d4d4f;
+            background: rgba(13, 13, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 8px;
             flex-shrink: 0;
+            z-index: 10;
         }
 
         .header-title {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .header-title h1 {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .model-badge {
-            background: #10a37f;
+            background: linear-gradient(135deg, var(--accent) 0%, #0ea5e9 100%);
             color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         .new-chat-btn {
-            background: transparent;
-            border: 1px solid #565869;
-            color: #ececf1;
-            padding: 8px 16px;
-            border-radius: 6px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-medium);
+            color: var(--text-primary);
+            padding: 7px 16px;
+            border-radius: var(--radius-full);
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all var(--transition-fast);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .new-chat-btn:hover {
-            background: #40414f;
-            border-color: #8e8ea0;
+            background: var(--bg-surface-2);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-1px);
         }
 
         .clear-history-btn {
             background: transparent;
-            border: 1px solid #565869;
-            color: #8e8ea0;
-            padding: 8px 16px;
-            border-radius: 6px;
+            border: 1px solid var(--border-medium);
+            color: var(--text-secondary);
+            padding: 7px 16px;
+            border-radius: var(--radius-full);
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all var(--transition-fast);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .clear-history-btn:hover {
-            background: #40414f;
-            border-color: #ff4444;
-            color: #ff6666;
+            background: var(--danger-hover);
+            border-color: var(--danger);
+            color: var(--danger);
         }
 
         .header-buttons {
@@ -105,28 +156,30 @@
 
         .compare-mode-btn {
             background: transparent;
-            border: 1px solid #565869;
-            color: #ececf1;
-            padding: 8px 16px;
-            border-radius: 6px;
+            border: 1px solid var(--border-medium);
+            color: var(--text-primary);
+            padding: 7px 16px;
+            border-radius: var(--radius-full);
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all var(--transition-fast);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .compare-mode-btn:hover {
-            background: #40414f;
-            border-color: #10a37f;
-            color: #10a37f;
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .compare-mode-btn.active {
-            background: #10a37f;
-            border-color: #10a37f;
+            background: var(--accent);
+            border-color: var(--accent);
             color: #fff;
+            box-shadow: var(--shadow-glow);
         }
 
         /* Compare Mode UI */
@@ -154,11 +207,11 @@
         }
 
         .compare-label {
-            font-size: 12px;
-            color: #8e8ea0;
+            font-size: 11px;
+            color: var(--text-tertiary);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.06em;
         }
 
         .compare-container {
@@ -176,10 +229,15 @@
         }
 
         .compare-side {
-            border: 2px solid #40414f;
-            border-radius: 8px;
-            padding: 16px;
-            background: #2a2b32;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            background: var(--bg-surface);
+            transition: border-color var(--transition-fast);
+        }
+
+        .compare-side:hover {
+            border-color: var(--border-medium);
         }
 
         .compare-header {
@@ -188,33 +246,40 @@
             justify-content: space-between;
             margin-bottom: 12px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #40414f;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .compare-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 700;
-            color: #8e8ea0;
+            color: var(--text-tertiary);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.08em;
         }
 
         .stats {
             font-size: 12px;
-            color: #8e8ea0;
+            color: var(--text-tertiary);
+            background: var(--bg-surface);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-subtle);
+            font-weight: 500;
+            letter-spacing: 0.01em;
         }
 
         /* Chat Container */
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
+            scroll-behavior: smooth;
         }
 
         .chat-container::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
 
         .chat-container::-webkit-scrollbar-track {
@@ -222,49 +287,59 @@
         }
 
         .chat-container::-webkit-scrollbar-thumb {
-            background: #565869;
-            border-radius: 4px;
+            background: var(--border-medium);
+            border-radius: var(--radius-full);
+        }
+
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: var(--border-strong);
         }
 
         /* Messages */
         .message {
             display: flex;
-            gap: 16px;
-            padding: 20px;
-            margin-bottom: 0;
-            animation: fadeIn 0.3s ease-in;
+            gap: 14px;
+            padding: 20px 24px;
+            margin-bottom: 2px;
+            animation: messageSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 900px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .message.user {
-            background: #343541;
+            background: transparent;
         }
 
         .message.assistant {
-            background: #444654;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
         }
 
         .message-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
         }
 
         .user .message-avatar {
-            background: #5436da;
+            background: linear-gradient(135deg, #7c3aed 0%, #5436da 100%);
         }
 
         .assistant .message-avatar {
-            background: #10a37f;
+            background: linear-gradient(135deg, var(--accent) 0%, #0ea5e9 100%);
         }
 
         .message-content {
@@ -276,55 +351,51 @@
         }
 
         .emotion-result {
-            margin-top: 12px;
-            padding: 16px;
-            background: #2a2b32;
-            border-radius: 8px;
-            border-left: 4px solid var(--emotion-color, #10a37f);
+            margin-top: 14px;
+            padding: 20px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            border-left: 3px solid var(--emotion-color, var(--accent));
+            box-shadow: var(--shadow-md);
+            transition: border-color var(--transition-fast);
         }
 
         .emotion-main {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 14px;
+            margin-bottom: 16px;
         }
 
         .emotion-emoji {
-            font-size: 32px;
+            font-size: 36px;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
         }
 
         .emotion-name {
             font-size: 24px;
-            font-weight: 600;
-            color: var(--emotion-color, #10a37f);
+            font-weight: 800;
+            color: var(--emotion-color, var(--accent));
+            letter-spacing: -0.02em;
         }
 
         /* Mixed Emotions Alert */
         .mixed-emotions-alert {
-            margin-bottom: 12px;
-            padding: 12px;
-            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%);
-            border-radius: 6px;
+            margin-bottom: 14px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.15) 0%, rgba(254, 202, 87, 0.15) 50%, rgba(72, 219, 251, 0.15) 100%);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
-            gap: 10px;
-            animation: pulseGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% {
-                opacity: 1;
-                box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
-            }
-            50% {
-                opacity: 0.9;
-                box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-            }
+            gap: 12px;
+            backdrop-filter: blur(8px);
         }
 
         .mixed-emotions-alert svg {
             flex-shrink: 0;
+            color: var(--text-primary);
         }
 
         .mixed-emotions-content {
@@ -333,87 +404,92 @@
 
         .mixed-emotions-title {
             font-weight: 700;
-            font-size: 14px;
-            color: #202123;
+            font-size: 13px;
+            color: var(--text-primary);
             margin-bottom: 4px;
         }
 
         .mixed-emotions-list {
             font-size: 12px;
-            color: #2a2b32;
+            color: var(--text-secondary);
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
+            gap: 6px;
         }
 
         .mixed-emotion-tag {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 2px 8px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
+            padding: 3px 10px;
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
             font-weight: 600;
+            color: var(--text-primary);
+            font-size: 12px;
         }
 
         .confidence {
-            font-size: 14px;
-            color: #8e8ea0;
-            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            font-weight: 500;
         }
 
         /* Intensity Meter */
         .intensity-section {
-            margin-bottom: 12px;
-            padding: 12px;
-            background: #2a2b32;
-            border-radius: 6px;
-            border: 1px solid #40414f;
+            margin-bottom: 14px;
+            padding: 14px;
+            background: var(--bg-surface-2);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
         }
 
         .intensity-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .intensity-label {
-            font-size: 13px;
-            color: #8e8ea0;
+            font-size: 12px;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 6px;
+            font-weight: 500;
         }
 
         .intensity-value {
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 12px;
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.06em;
         }
 
         .intensity-low {
-            background: #4a5568;
-            color: #a0aec0;
+            background: rgba(113, 113, 122, 0.2);
+            color: var(--text-secondary);
         }
 
         .intensity-medium {
-            background: #ed8936;
-            color: #fff;
+            background: rgba(251, 146, 60, 0.2);
+            color: #fb923c;
         }
 
         .intensity-high {
-            background: #f56565;
-            color: #fff;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
             animation: intensePulse 1.5s ease-in-out infinite;
         }
 
         .intensity-extreme {
-            background: linear-gradient(135deg, #ff0000 0%, #ff6b00 100%);
-            color: #fff;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(249, 115, 22, 0.3) 100%);
+            color: #f97316;
             animation: extremePulse 0.8s ease-in-out infinite;
         }
 
@@ -440,9 +516,9 @@
         }
 
         .intensity-meter {
-            height: 8px;
-            background: #40414f;
-            border-radius: 4px;
+            height: 6px;
+            background: var(--bg-surface-3);
+            border-radius: var(--radius-full);
             overflow: hidden;
             position: relative;
         }
@@ -479,30 +555,33 @@
         }
 
         .confidence-bar {
-            height: 6px;
-            background: #40414f;
-            border-radius: 3px;
+            height: 5px;
+            background: var(--bg-surface-3);
+            border-radius: var(--radius-full);
             overflow: hidden;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         .confidence-fill {
             height: 100%;
-            background: var(--emotion-color, #10a37f);
-            transition: width 0.5s ease;
+            background: var(--emotion-color, var(--accent));
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: var(--radius-full);
         }
 
         .probabilities {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #40414f;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-subtle);
         }
 
         .prob-title {
-            font-size: 12px;
-            color: #8e8ea0;
-            margin-bottom: 8px;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 10px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
         }
 
         .prob-item {
@@ -519,42 +598,47 @@
 
         .prob-name {
             flex: 1;
-            color: #ececf1;
+            color: var(--text-primary);
+            font-weight: 500;
         }
 
         .prob-value {
-            color: #8e8ea0;
+            color: var(--text-secondary);
             font-size: 12px;
+            font-weight: 500;
         }
 
         .prob-bar {
             width: 60px;
             height: 4px;
-            background: #40414f;
-            border-radius: 2px;
+            background: var(--bg-surface-3);
+            border-radius: var(--radius-full);
             overflow: hidden;
         }
 
         .prob-bar-fill {
             height: 100%;
-            background: var(--prob-color, #10a37f);
+            background: var(--prob-color, var(--accent));
+            border-radius: var(--radius-full);
         }
 
         /* Important Words Section */
         .important-words {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #40414f;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-subtle);
         }
 
         .words-title {
-            font-size: 12px;
-            color: #8e8ea0;
+            font-size: 11px;
+            color: var(--text-tertiary);
             margin-bottom: 10px;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
         }
 
         .words-container {
@@ -567,15 +651,21 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
-            background: linear-gradient(135deg, var(--emotion-color, #10a37f) 0%, rgba(var(--emotion-rgb), 0.3) 100%);
-            border: 1px solid var(--emotion-color, #10a37f);
-            border-radius: 16px;
+            padding: 6px 14px;
+            background: rgba(var(--emotion-rgb, 16, 163, 127), 0.1);
+            border: 1px solid rgba(var(--emotion-rgb, 16, 163, 127), 0.2);
+            border-radius: var(--radius-full);
             font-size: 13px;
             font-weight: 500;
-            color: #ececf1;
-            animation: fadeInScale 0.3s ease-out;
+            color: var(--text-primary);
+            animation: fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             animation-fill-mode: backwards;
+            transition: all var(--transition-fast);
+        }
+
+        .word-badge:hover {
+            background: rgba(var(--emotion-rgb, 16, 163, 127), 0.2);
+            transform: translateY(-1px);
         }
 
         .word-badge:nth-child(1) { animation-delay: 0.1s; }
@@ -617,33 +707,29 @@
         .chart-section {
             margin-top: 16px;
             padding-top: 16px;
-            border-top: 1px solid #40414f;
+            border-top: 1px solid var(--border-subtle);
         }
 
         .chart-title {
-            font-size: 12px;
-            color: #8e8ea0;
+            font-size: 11px;
+            color: var(--text-tertiary);
             margin-bottom: 12px;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
         }
 
         .chart-container {
             position: relative;
             height: 280px;
-            background: #2d2e38;
-            border-radius: 8px;
+            background: var(--bg-surface-2);
+            border-radius: var(--radius-md);
             padding: 16px;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @media (max-width: 480px) {
-            .chart-container {
-                height: 220px;
-                padding: 10px;
-            }
+            border: 1px solid var(--border-subtle);
+            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes fadeIn {
@@ -661,49 +747,109 @@
         .welcome {
             text-align: center;
             padding: 60px 20px;
-            max-width: 600px;
+            max-width: 640px;
             margin: auto;
         }
 
-        .welcome h2 {
-            font-size: 28px;
+        .welcome-icon {
+            font-size: 48px;
             margin-bottom: 16px;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        .welcome h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 50%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .welcome p {
-            color: #8e8ea0;
-            line-height: 1.6;
-            margin-bottom: 24px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .welcome-subtitle {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .emotion-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+        }
+
+        .emotion-chip:hover {
+            border-color: var(--border-medium);
+            transform: translateY(-1px);
         }
 
         .examples {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-top: 24px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
 
         .example-btn {
-            padding: 12px 16px;
-            background: #40414f;
-            border: 1px solid #565869;
-            border-radius: 8px;
-            color: #ececf1;
+            padding: 14px 18px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--transition-fast);
             font-size: 13px;
+            font-weight: 500;
             text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.4;
+        }
+
+        .example-btn::before {
+            content: '→';
+            color: var(--text-tertiary);
+            font-size: 14px;
+            transition: all var(--transition-fast);
+            flex-shrink: 0;
         }
 
         .example-btn:hover {
-            background: #565869;
+            background: var(--bg-surface-2);
+            border-color: var(--accent);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .example-btn:hover::before {
+            color: var(--accent);
+            transform: translateX(3px);
         }
 
         /* Input Area */
         .input-area {
-            padding: 20px;
-            background: #343541;
-            border-top: 1px solid #4d4d4f;
+            padding: 16px 24px 24px;
+            background: linear-gradient(to top, var(--bg-primary) 60%, transparent);
             flex-shrink: 0;
         }
 
@@ -718,21 +864,24 @@
             display: flex;
             gap: 12px;
             align-items: flex-end;
-            background: #40414f;
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid #565869;
+            background: var(--bg-surface);
+            border-radius: var(--radius-xl);
+            padding: 12px 16px;
+            border: 1px solid var(--border-medium);
+            box-shadow: var(--shadow-lg);
+            transition: all var(--transition-fast);
         }
 
         .input-container:focus-within {
-            border-color: #10a37f;
+            border-color: var(--accent);
+            box-shadow: var(--shadow-lg), 0 0 0 3px var(--accent-glow);
         }
 
         #messageInput {
             flex: 1;
             background: transparent;
             border: none;
-            color: #ececf1;
+            color: var(--text-primary);
             font-size: 15px;
             resize: none;
             outline: none;
@@ -742,73 +891,105 @@
         }
 
         #messageInput::placeholder {
-            color: #8e8ea0;
+            color: var(--text-tertiary);
         }
 
         #sendButton {
-            background: #10a37f;
+            background: var(--accent);
             color: white;
             border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all var(--transition-fast);
             flex-shrink: 0;
         }
 
         #sendButton:hover:not(:disabled) {
-            background: #0d8c6d;
+            background: var(--accent-hover);
+            transform: scale(1.05);
+            box-shadow: 0 0 12px var(--accent-glow-strong);
         }
 
         #sendButton:disabled {
-            background: #40414f;
+            background: var(--bg-surface-3);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         #compareButton {
-            background: #10a37f;
+            background: var(--accent);
             color: white;
             border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-full);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all var(--transition-fast);
             flex-shrink: 0;
         }
 
         #compareButton:hover {
-            background: #0d8c6d;
+            background: var(--accent-hover);
+            transform: scale(1.05);
+            box-shadow: 0 0 12px var(--accent-glow-strong);
         }
 
         @media (max-width: 640px) {
             #compareButton {
                 width: 100%;
-                height: 40px;
-                border-radius: 10px;
+                height: 42px;
+                border-radius: var(--radius-md);
             }
         }
 
         .loading {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #10a37f;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            padding: 4px 0;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .loading::before,
+        .loading::after,
+        .loading span {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: dotBounce 1.4s ease-in-out infinite;
+        }
+
+        .loading::before {
+            animation-delay: 0s;
+        }
+
+        .loading span {
+            animation-delay: 0.2s;
+        }
+
+        .loading::after {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes dotBounce {
+            0%, 80%, 100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         /* ===== RESPONSIVE ===== */
@@ -832,11 +1013,11 @@
             }
 
             .header-title h1 {
-                font-size: 15px;
+                font-size: 14px;
             }
 
             .model-badge {
-                font-size: 10px;
+                font-size: 9px;
                 padding: 3px 8px;
             }
 
@@ -850,7 +1031,7 @@
             .new-chat-btn,
             .clear-history-btn,
             .compare-mode-btn {
-                padding: 6px 10px;
+                padding: 6px 12px;
                 font-size: 12px;
             }
 
@@ -864,7 +1045,7 @@
             }
 
             .welcome h2 {
-                font-size: 22px;
+                font-size: 24px;
             }
 
             .welcome p {
@@ -876,7 +1057,7 @@
             }
 
             .input-area {
-                padding: 14px;
+                padding: 12px 14px 18px;
             }
 
             .emotion-name {
@@ -891,14 +1072,13 @@
         /* Mobile large */
         @media (max-width: 640px) {
             .header-title h1 {
-                font-size: 14px;
+                font-size: 13px;
             }
 
             .header-buttons {
                 gap: 6px;
             }
 
-            /* Hide button text, show only icons on small screens */
             .new-chat-btn span,
             .clear-history-btn span,
             .compare-mode-btn span {
@@ -921,7 +1101,7 @@
             }
 
             .emotion-result {
-                padding: 12px;
+                padding: 14px;
             }
 
             .word-badge {
@@ -937,7 +1117,7 @@
             }
 
             .header-title h1 {
-                font-size: 13px;
+                font-size: 12px;
             }
 
             .stats {
@@ -960,25 +1140,34 @@
             }
 
             .welcome h2 {
-                font-size: 20px;
+                font-size: 22px;
             }
 
             .welcome p {
                 font-size: 13px;
             }
 
+            .welcome-subtitle {
+                gap: 6px;
+            }
+
+            .emotion-chip {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+
             .example-btn {
-                padding: 10px 12px;
+                padding: 12px 14px;
                 font-size: 12px;
             }
 
             .input-area {
-                padding: 10px;
+                padding: 10px 10px 16px;
             }
 
             .input-container {
-                padding: 8px 10px;
-                border-radius: 10px;
+                padding: 10px 12px;
+                border-radius: var(--radius-lg);
             }
 
             #messageInput {
@@ -998,7 +1187,7 @@
             }
 
             .confidence {
-                font-size: 13px;
+                font-size: 12px;
             }
 
             .prob-item {
@@ -1019,7 +1208,7 @@
             }
 
             .compare-side {
-                padding: 12px;
+                padding: 14px;
             }
 
             .intensity-section {
@@ -1035,12 +1224,17 @@
                 font-size: 11px;
                 padding: 2px 6px;
             }
+
+            .chart-container {
+                height: 220px;
+                padding: 10px;
+            }
         }
 
         /* Very small screens */
         @media (max-width: 360px) {
             .header-title h1 {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .model-badge {
@@ -1093,23 +1287,31 @@
     <!-- Chat Container -->
     <div class="chat-container" id="chatContainer">
         <div class="welcome">
+            <div class="welcome-icon">🎭</div>
             <h2>Emotion Classifier AI</h2>
             <p>
-                Escribe cualquier texto en inglés y analizaré la emoción que expresa.
-                Puedo detectar: Alegría, Tristeza, Amor, Enojo, Miedo y Sorpresa.
+                Write any text in English and I'll analyze the emotion it expresses.
             </p>
+            <div class="welcome-subtitle">
+                <span class="emotion-chip">😊 Joy</span>
+                <span class="emotion-chip">😢 Sadness</span>
+                <span class="emotion-chip">❤️ Love</span>
+                <span class="emotion-chip">😠 Anger</span>
+                <span class="emotion-chip">😨 Fear</span>
+                <span class="emotion-chip">😮 Surprise</span>
+            </div>
             <div class="examples">
                 <button class="example-btn" onclick="useExample(this)">
-                    I am so happy and excited! 😊
+                    I am so happy and excited!
                 </button>
                 <button class="example-btn" onclick="useExample(this)">
-                    I feel sad and lonely today 😢
+                    I feel sad and lonely today
                 </button>
                 <button class="example-btn" onclick="useExample(this)">
-                    I love you so much! ❤️
+                    I love you so much!
                 </button>
                 <button class="example-btn" onclick="useExample(this)">
-                    This makes me really angry! 😠
+                    This makes me really angry!
                 </button>
             </div>
         </div>
@@ -1311,7 +1513,7 @@
         }
 
         function useExample(button) {
-            const text = button.textContent.trim().split(' ').slice(0, -1).join(' ');
+            const text = button.textContent.trim();
             messageInput.value = text;
             messageInput.focus();
         }
@@ -1452,7 +1654,7 @@
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            contentDiv.innerHTML = '<span class="loading"></span>';
+            contentDiv.innerHTML = '<span class="loading"><span></span></span>';
 
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(contentDiv);
@@ -1622,7 +1824,6 @@
             const isMobile = window.innerWidth <= 480;
             const isTablet = window.innerWidth <= 768;
 
-            // Extract data for chart
             const labels = probabilities.map(p => `${p.emoji} ${p.emotion}`);
             const values = probabilities.map(p => p.probability * 100);
             const colors = probabilities.map(p => p.color);
@@ -1634,11 +1835,11 @@
                     datasets: [{
                         label: 'Probability (%)',
                         data: values,
-                        backgroundColor: colors.map(c => c + '80'),
+                        backgroundColor: colors.map(c => c + '33'),
                         borderColor: colors,
                         borderWidth: isMobile ? 1 : 2,
-                        borderRadius: isMobile ? 4 : 6,
-                        barThickness: isMobile ? 18 : isTablet ? 24 : 32
+                        borderRadius: isMobile ? 4 : 8,
+                        barThickness: isMobile ? 16 : isTablet ? 22 : 28
                     }]
                 },
                 options: {
@@ -1650,13 +1851,16 @@
                             display: false
                         },
                         tooltip: {
-                            backgroundColor: '#202123',
-                            titleColor: '#ececf1',
-                            bodyColor: '#ececf1',
-                            borderColor: '#565869',
+                            backgroundColor: 'rgba(13, 13, 15, 0.95)',
+                            titleColor: '#f4f4f5',
+                            bodyColor: '#f4f4f5',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
                             borderWidth: 1,
                             padding: isMobile ? 8 : 12,
+                            cornerRadius: 10,
                             displayColors: false,
+                            titleFont: { family: 'Inter', weight: '600' },
+                            bodyFont: { family: 'Inter' },
                             callbacks: {
                                 label: function(context) {
                                     return `${context.parsed.x.toFixed(2)}%`;
@@ -1669,12 +1873,13 @@
                             beginAtZero: true,
                             max: 100,
                             grid: {
-                                color: '#40414f',
+                                color: 'rgba(255, 255, 255, 0.04)',
                                 drawBorder: false
                             },
                             ticks: {
-                                color: '#8e8ea0',
+                                color: '#71717a',
                                 font: {
+                                    family: 'Inter',
                                     size: isMobile ? 9 : 11
                                 },
                                 maxTicksLimit: isMobile ? 5 : 10,
@@ -1689,8 +1894,9 @@
                                 drawBorder: false
                             },
                             ticks: {
-                                color: '#ececf1',
+                                color: '#f4f4f5',
                                 font: {
+                                    family: 'Inter',
                                     size: isMobile ? 10 : isTablet ? 11 : 13,
                                     weight: '500'
                                 }
@@ -1698,7 +1904,7 @@
                         }
                     },
                     animation: {
-                        duration: 1000,
+                        duration: 800,
                         easing: 'easeOutQuart'
                     }
                 }
@@ -1728,24 +1934,24 @@
                         <div class="compare-header">
                             <div class="compare-title">📄 Text A</div>
                         </div>
-                        <div style="color: #8e8ea0; font-size: 13px; margin-bottom: 12px; font-style: italic; overflow-wrap: break-word; word-break: break-word;">"${text1}"</div>
+                        <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px; font-style: italic; overflow-wrap: break-word; word-break: break-word;">"${text1}"</div>
                         <div style="text-align: center; margin: 16px 0;">
-                            <div style="font-size: ${emojiSize}; margin-bottom: 8px;">${data1.emoji}</div>
-                            <div style="font-size: ${nameSize}; font-weight: 700; color: ${data1.color};">${data1.emotion}</div>
-                            <div style="font-size: ${confSize}; color: #8e8ea0; margin-top: 8px;">${(data1.confidence * 100).toFixed(1)}% confidence</div>
-                            <div style="font-size: 14px; color: #8e8ea0; margin-top: 8px;">Intensity: ${data1.intensity.label}</div>
+                            <div style="font-size: ${emojiSize}; margin-bottom: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">${data1.emoji}</div>
+                            <div style="font-size: ${nameSize}; font-weight: 800; color: ${data1.color}; letter-spacing: -0.02em;">${data1.emotion}</div>
+                            <div style="font-size: ${confSize}; color: var(--text-secondary); margin-top: 8px; font-weight: 500;">${(data1.confidence * 100).toFixed(1)}% confidence</div>
+                            <div style="font-size: 13px; color: var(--text-tertiary); margin-top: 6px;">Intensity: ${data1.intensity.label}</div>
                         </div>
                     </div>
                     <div class="compare-side">
                         <div class="compare-header">
                             <div class="compare-title">📄 Text B</div>
                         </div>
-                        <div style="color: #8e8ea0; font-size: 13px; margin-bottom: 12px; font-style: italic; overflow-wrap: break-word; word-break: break-word;">"${text2}"</div>
+                        <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px; font-style: italic; overflow-wrap: break-word; word-break: break-word;">"${text2}"</div>
                         <div style="text-align: center; margin: 16px 0;">
-                            <div style="font-size: ${emojiSize}; margin-bottom: 8px;">${data2.emoji}</div>
-                            <div style="font-size: ${nameSize}; font-weight: 700; color: ${data2.color};">${data2.emotion}</div>
-                            <div style="font-size: ${confSize}; color: #8e8ea0; margin-top: 8px;">${(data2.confidence * 100).toFixed(1)}% confidence</div>
-                            <div style="font-size: 14px; color: #8e8ea0; margin-top: 8px;">Intensity: ${data2.intensity.label}</div>
+                            <div style="font-size: ${emojiSize}; margin-bottom: 8px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">${data2.emoji}</div>
+                            <div style="font-size: ${nameSize}; font-weight: 800; color: ${data2.color}; letter-spacing: -0.02em;">${data2.emotion}</div>
+                            <div style="font-size: ${confSize}; color: var(--text-secondary); margin-top: 8px; font-weight: 500;">${(data2.confidence * 100).toFixed(1)}% confidence</div>
+                            <div style="font-size: 13px; color: var(--text-tertiary); margin-top: 6px;">Intensity: ${data2.intensity.label}</div>
                         </div>
                     </div>
                 </div>
@@ -1776,23 +1982,31 @@
                 const welcomeDiv = document.createElement('div');
                 welcomeDiv.className = 'welcome';
                 welcomeDiv.innerHTML = `
+                    <div class="welcome-icon">🎭</div>
                     <h2>Emotion Classifier AI</h2>
                     <p>
-                        Escribe cualquier texto en inglés y analizaré la emoción que expresa.
-                        Puedo detectar: Alegría, Tristeza, Amor, Enojo, Miedo y Sorpresa.
+                        Write any text in English and I'll analyze the emotion it expresses.
                     </p>
+                    <div class="welcome-subtitle">
+                        <span class="emotion-chip">😊 Joy</span>
+                        <span class="emotion-chip">😢 Sadness</span>
+                        <span class="emotion-chip">❤️ Love</span>
+                        <span class="emotion-chip">😠 Anger</span>
+                        <span class="emotion-chip">😨 Fear</span>
+                        <span class="emotion-chip">😮 Surprise</span>
+                    </div>
                     <div class="examples">
                         <button class="example-btn" onclick="useExample(this)">
-                            I am so happy and excited! 😊
+                            I am so happy and excited!
                         </button>
                         <button class="example-btn" onclick="useExample(this)">
-                            I feel sad and lonely today 😢
+                            I feel sad and lonely today
                         </button>
                         <button class="example-btn" onclick="useExample(this)">
-                            I love you so much! ❤️
+                            I love you so much!
                         </button>
                         <button class="example-btn" onclick="useExample(this)">
-                            This makes me really angry! 😠
+                            This makes me really angry!
                         </button>
                     </div>
                 `;
